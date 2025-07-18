@@ -1,5 +1,6 @@
 package org.balczukiewicz.notekeeperservice.config;
 
+import org.balczukiewicz.notekeeperservice.service.JwtService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -47,8 +48,11 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter();
+    public JwtAuthenticationFilter jwtAuthenticationFilter(
+            JwtService jwtService,
+            UserDetailsService userDetailsService) {
+
+        return new JwtAuthenticationFilter(jwtService, userDetailsService);
     }
 
     @Bean

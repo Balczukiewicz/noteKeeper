@@ -81,5 +81,5 @@ public interface NoteApi {
             )
     })
     @GetMapping("/{id}")
-    ResponseEntity<NoteResponse> getNoteById(@PathVariable Long id);
+    ResponseEntity<NoteResponse> getNoteById(@PathVariable("id") Long id);
 }

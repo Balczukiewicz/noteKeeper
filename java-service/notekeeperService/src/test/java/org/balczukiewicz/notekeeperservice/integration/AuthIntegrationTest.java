@@ -32,10 +32,12 @@ class AuthIntegrationTest {
     @Test
     @DisplayName("Should authenticate admin user successfully")
     void shouldAuthenticateAdminUserSuccessfully() throws Exception {
+        // Given
         AuthRequest authRequest = new AuthRequest();
         authRequest.setUsername("admin");
         authRequest.setPassword("password");
 
+        // When
         MvcResult result = mockMvc.perform(post("/api/v1/auth")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(authRequest)))
@@ -46,6 +48,7 @@ class AuthIntegrationTest {
                 .andExpect(jsonPath("$.expiresIn").value(3600000L))
                 .andReturn();
 
+        // Then
         AuthResponse response = objectMapper.readValue(
                 result.getResponse().getContentAsString(), AuthResponse.class);
         assertNotNull(response.getToken());
@@ -57,10 +60,12 @@ class AuthIntegrationTest {
     @Test
     @DisplayName("Should authenticate regular user successfully")
     void shouldAuthenticateRegularUserSuccessfully() throws Exception {
+        //Given
         AuthRequest authRequest = new AuthRequest();
         authRequest.setUsername("user");
         authRequest.setPassword("password");
 
+        // When & Then
         mockMvc.perform(post("/api/v1/auth")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(authRequest)))
@@ -74,10 +79,12 @@ class AuthIntegrationTest {
     @Test
     @DisplayName("Should reject authentication with wrong password")
     void shouldRejectAuthenticationWithWrongPassword() throws Exception {
+        // Given
         AuthRequest authRequest = new AuthRequest();
         authRequest.setUsername("admin");
         authRequest.setPassword("wrongpassword");
 
+        //When & Then
         mockMvc.perform(post("/api/v1/auth")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(authRequest)))
@@ -155,8 +162,10 @@ class AuthIntegrationTest {
     @Test
     @DisplayName("Should reject malformed JSON request")
     void shouldRejectMalformedJsonRequest() throws Exception {
+        // Given
         String malformedJson = "{\"username\":\"admin\",\"password\":}";
 
+        // When & Then
         mockMvc.perform(post("/api/v1/auth")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(malformedJson))
@@ -178,10 +187,12 @@ class AuthIntegrationTest {
     @Test
     @DisplayName("Should allow access to protected endpoint with valid token")
     void shouldAllowAccessToProtectedEndpointWithValidToken() throws Exception {
+        // Given
         AuthRequest authRequest = new AuthRequest();
         authRequest.setUsername("admin");
         authRequest.setPassword("password");
 
+        // When - Get auth token
         MvcResult authResult = mockMvc.perform(post("/api/v1/auth")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(authRequest)))
@@ -192,6 +203,7 @@ class AuthIntegrationTest {
                 authResult.getResponse().getContentAsString(), AuthResponse.class);
         String token = authResponse.getToken();
 
+        // Then - Access protected endpoint with token
         mockMvc.perform(get("/api/v1/notes")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
@@ -208,8 +220,10 @@ class AuthIntegrationTest {
     @Test
     @DisplayName("Should deny access to protected endpoint with invalid token")
     void shouldDenyAccessToProtectedEndpointWithInvalidToken() throws Exception {
+        // Given
         String invalidToken = "invalid.jwt.token";
 
+        // When & Then
         mockMvc.perform(get("/api/v1/notes")
                         .header("Authorization", "Bearer " + invalidToken))
                 .andExpect(status().isUnauthorized());
@@ -218,8 +232,10 @@ class AuthIntegrationTest {
     @Test
     @DisplayName("Should deny access to protected endpoint with malformed Authorization header")
     void shouldDenyAccessToProtectedEndpointWithMalformedAuthHeader() throws Exception {
+        // Given
         String malformedHeader = "InvalidBearer token";
 
+        // When & Then
         mockMvc.perform(get("/api/v1/notes")
                         .header("Authorization", malformedHeader))
                 .andExpect(status().isUnauthorized());
@@ -228,10 +244,12 @@ class AuthIntegrationTest {
     @Test
     @DisplayName("Should successfully create note with valid token")
     void shouldSuccessfullyCreateNoteWithValidToken() throws Exception {
+        // Given
         AuthRequest authRequest = new AuthRequest();
         authRequest.setUsername("admin");
         authRequest.setPassword("password");
 
+        // When - Get auth token
         MvcResult authResult = mockMvc.perform(post("/api/v1/auth")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(authRequest)))
@@ -246,6 +264,7 @@ class AuthIntegrationTest {
         noteRequest.setTitle("Auth Test Note");
         noteRequest.setContent("This note was created during authentication testing");
 
+        // Then - Create note with valid token
         mockMvc.perform(post("/api/v1/notes")
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -259,10 +278,12 @@ class AuthIntegrationTest {
     @Test
     @DisplayName("Should handle multiple authentication requests")
     void shouldHandleMultipleAuthenticationRequests() throws Exception {
+        // Given
         AuthRequest authRequest = new AuthRequest();
         authRequest.setUsername("admin");
         authRequest.setPassword("password");
 
+        // When & Then
         for (int i = 0; i < 3; i++) {
             mockMvc.perform(post("/api/v1/auth")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -276,10 +297,12 @@ class AuthIntegrationTest {
     @Test
     @DisplayName("Should generate different tokens for multiple authentication requests")
     void shouldGenerateDifferentTokensForMultipleAuthenticationRequests() throws Exception {
+        // Given
         AuthRequest authRequest = new AuthRequest();
         authRequest.setUsername("admin");
         authRequest.setPassword("password");
 
+        // When - First authentication
         MvcResult result1 = mockMvc.perform(post("/api/v1/auth")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(authRequest)))
@@ -288,12 +311,14 @@ class AuthIntegrationTest {
 
         Thread.sleep(1000);
 
+        // When - Second authentication
         MvcResult result2 = mockMvc.perform(post("/api/v1/auth")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(authRequest)))
                 .andExpect(status().isOk())
                 .andReturn();
 
+        // Then
         AuthResponse response1 = objectMapper.readValue(
                 result1.getResponse().getContentAsString(), AuthResponse.class);
         AuthResponse response2 = objectMapper.readValue(

@@ -37,7 +37,7 @@ class NoteKeeperClient:
                 return False
                 
         except requests.exceptions.RequestException as e:
-            print(f"✗ Authentication failed: {e}")
+            print(f" Authentication failed: {e}")
             if hasattr(e, 'response') and e.response is not None:
                 try:
                     error_data = e.response.json()
