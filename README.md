@@ -204,3 +204,16 @@ Client execution completed successfully!
 - **🐍 Python Client** - Ready-to-use Python test client
 - **🧪 Comprehensive Testing** - Unit and integration tests
 - **🔒 Security Headers** - Protection against common web vulnerabilities
+
+
+## 🚧 Further Improvements
+
+> 💡 *If I had more time, this is what I would tackle next.*
+
+| Priority | Improvement | Why it matters |
+|----------|-------------|----------------|
+| 🔄 **Switch to PostgreSQL** | Replace the in‑memory H2 database with PostgreSQL (already defined in `docker‑compose.yml`). | Real, durable storage suitable for production and more reliable integration tests. |
+| 👤➡️📝 **User ↔ Note relationship** | Add a `OneToMany` mapping so each note is owned by a specific user. | Enables proper access control—users see only their own notes. |
+| 🔒 **Hash user passwords** | Store passwords hashed with BCrypt/Argon2 instead of plaintext. | Aligns with OWASP recommendations and eliminates the risk of leaking raw passwords. |
+| 📄 **Pagination & sorting** | Implement `GET /notes?page=&size=&sort=` using Spring’s `Pageable`. | Keeps response sizes manageable and scales gracefully to thousands of notes. |
+| ✏️ **Update & delete endpoints** | Implement `PUT /notes/{id}` and `DELETE /notes/{id}` (optionally soft‑delete). | Completes full CRUD support for notes and matches REST conventions. |
