@@ -5,8 +5,8 @@ A modern REST API for managing notes with JWT authentication, built with Spring 
 ## 🏗️ Architecture
 
 ```
-notekeeper-service/
-├── 📁 src/main/java/org/balczukiewicz/notekeeperservice/
+noteKeeper/
+├── 📁 java-service/notekeeperService/src/main/java/org/balczukiewicz/notekeeperservice/
 │   ├── 🔐 config/          # Security, Cache, OpenAPI configuration
 │   ├── 🎮 controller/      # REST API endpoints
 │   ├── 📋 dto/             # Data Transfer Objects
