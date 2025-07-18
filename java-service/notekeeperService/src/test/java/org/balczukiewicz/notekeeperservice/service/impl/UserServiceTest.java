@@ -34,6 +34,7 @@ class UserServiceTest {
 
     @Test
     void loadUserByUsername_ExistingUser_ReturnsUserDetails() {
+        // Given
         String username = "testuser";
         User mockUser = User.builder()
                 .id(1L)
@@ -43,7 +44,11 @@ class UserServiceTest {
                 .build();
 
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(mockUser));
+
+        // When
         UserDetails result = userService.loadUserByUsername(username);
+
+        // Then
         assertNotNull(result);
         assertEquals(username, result.getUsername());
         assertEquals("encoded-password", result.getPassword());
@@ -54,8 +59,11 @@ class UserServiceTest {
 
     @Test
     void loadUserByUsername_NonExistingUser_ThrowsException() {
+        // Given
         String username = "nonexistent";
         when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+
+        // When & Then
         assertThrows(UsernameNotFoundException.class,
                 () -> userService.loadUserByUsername(username));
         verify(userRepository).findByUsername(username);
@@ -63,28 +71,43 @@ class UserServiceTest {
 
     @Test
     void existsByUsername_ExistingUser_ReturnsTrue() {
+        // Given
         String username = "testuser";
         when(userRepository.existsByUsername(username)).thenReturn(true);
+
+        // When
         boolean result = userService.existsByUsername(username);
+
+        // Then
         assertTrue(result);
         verify(userRepository).existsByUsername(username);
     }
 
     @Test
     void existsByUsername_NonExistingUser_ReturnsFalse() {
+        // Given
         String username = "nonexistent";
         when(userRepository.existsByUsername(username)).thenReturn(false);
+
+        // When
         boolean result = userService.existsByUsername(username);
+
+        // Then
         assertFalse(result);
         verify(userRepository).existsByUsername(username);
     }
 
     @Test
     void createDefaultUsers_NoExistingUsers_CreatesAdminAndUser() {
+        // Given
         when(userRepository.existsByUsername("admin")).thenReturn(false);
         when(userRepository.existsByUsername("user")).thenReturn(false);
         when(passwordEncoder.encode("password")).thenReturn("encoded-password");
+
+        // When
         userService.createDefaultUsers();
+
+        // Then
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
         verify(userRepository, times(2)).save(userCaptor.capture());
 
@@ -109,24 +132,39 @@ class UserServiceTest {
 
     @Test
     void createDefaultUsers_ExistingUsers_DoesNotCreateDuplicates() {
+        // Given
         when(userRepository.existsByUsername("admin")).thenReturn(true);
         when(userRepository.existsByUsername("user")).thenReturn(true);
+
+        // When
         userService.createDefaultUsers();
+
+        // Then
         verify(userRepository, never()).save(any(User.class));
         verify(passwordEncoder, never()).encode(anyString());
     }
 
     @Test
     void createDefaultUsers_PartiallyExistingUsers_CreatesOnlyMissing() {
-        when(userRepository.existsByUsername("admin")).thenReturn(true);
-        when(userRepository.existsByUsername("user")).thenReturn(false);
+        // Given
+        when(userRepository.existsByUsername("admin")).thenReturn(true);  // Admin exists
+        when(userRepository.existsByUsername("user")).thenReturn(false);   // User doesn't exist
         when(passwordEncoder.encode("password")).thenReturn("encoded-password");
+
+        // When
         userService.createDefaultUsers();
+
+        // Then
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
         verify(userRepository, times(1)).save(userCaptor.capture());
+
         User savedUser = userCaptor.getValue();
         assertEquals("user", savedUser.getUsername());
         assertEquals("encoded-password", savedUser.getPassword());
         assertEquals(Role.USER, savedUser.getRole());
+
+        // Verify both usernames were checked
+        verify(userRepository).existsByUsername("admin");
+        verify(userRepository).existsByUsername("user");
     }
 }

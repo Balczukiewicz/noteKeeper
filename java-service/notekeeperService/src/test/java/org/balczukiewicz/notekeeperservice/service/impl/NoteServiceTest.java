@@ -30,15 +30,22 @@ class NoteServiceTest {
 
     @Test
     void createNote_ValidRequest_ReturnsNoteResponse() {
+        // Given
         NoteRequest request = new NoteRequest();
         request.setTitle("Test Note");
         request.setContent("Test Content");
+
         Note savedNote = new Note();
         savedNote.setId(1L);
         savedNote.setTitle("Test Note");
         savedNote.setContent("Test Content");
+
         when(noteRepository.save(any(Note.class))).thenReturn(savedNote);
+
+        // When
         NoteResponse response = noteService.createNote(request);
+
+        // Then
         assertNotNull(response);
         assertEquals(1L, response.getId());
         assertEquals("Test Note", response.getTitle());
@@ -48,17 +55,24 @@ class NoteServiceTest {
 
     @Test
     void getAllNotes_ReturnsAllNotes() {
+        // Given
         Note note1 = new Note();
         note1.setId(1L);
         note1.setTitle("Note 1");
         note1.setContent("Content 1");
+
         Note note2 = new Note();
         note2.setId(2L);
         note2.setTitle("Note 2");
         note2.setContent("Content 2");
+
         List<Note> notes = Arrays.asList(note1, note2);
         when(noteRepository.findAllByOrderByIdDesc()).thenReturn(notes);
+
+        // When
         List<NoteResponse> responses = noteService.getAllNotes();
+
+        // Then
         assertNotNull(responses);
         assertEquals(2, responses.size());
         assertEquals(1L, responses.get(0).getId());
@@ -68,12 +82,18 @@ class NoteServiceTest {
 
     @Test
     void getNoteById_ExistingId_ReturnsNote() {
+        // Given
         Note note = new Note();
         note.setId(1L);
         note.setTitle("Test Note");
         note.setContent("Test Content");
+
         when(noteRepository.findById(1L)).thenReturn(Optional.of(note));
+
+        // When
         NoteResponse response = noteService.getNoteById(1L);
+
+        // Then
         assertNotNull(response);
         assertEquals(1L, response.getId());
         assertEquals("Test Note", response.getTitle());
@@ -83,7 +103,10 @@ class NoteServiceTest {
 
     @Test
     void getNoteById_NonExistingId_ThrowsException() {
+        // Given
         when(noteRepository.findById(999L)).thenReturn(Optional.empty());
+
+        // When & Then
         assertThrows(NoteNotFoundException.class, () -> noteService.getNoteById(999L));
         verify(noteRepository, times(1)).findById(999L);
     }

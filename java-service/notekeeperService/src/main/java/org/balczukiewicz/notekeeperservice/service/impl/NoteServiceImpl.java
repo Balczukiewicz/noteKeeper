@@ -1,5 +1,6 @@
 package org.balczukiewicz.notekeeperservice.service.impl;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.balczukiewicz.notekeeperservice.dto.NoteRequest;
 import org.balczukiewicz.notekeeperservice.dto.NoteResponse;
@@ -19,10 +20,10 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class NoteServiceImpl implements NoteService {
 
-    @Autowired
-    private NoteRepository noteRepository;
+    private final NoteRepository noteRepository;
 
     @Override
     @Transactional(readOnly = true)
